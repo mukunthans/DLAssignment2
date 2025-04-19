@@ -1,6 +1,6 @@
 
-import torch
-from torchvision import transforms, datasets
+from torchvision.datasets import ImageFolder
+from torchvision import transforms
 from torch.utils.data import DataLoader, Subset
 
 class DataPreparer:
@@ -12,22 +12,27 @@ class DataPreparer:
 
     def get_train_transform(self):
         size = (self.image_size, self.image_size)
-        return transforms.Compose([
-            transforms.Resize(size),
-            transforms.RandomHorizontalFlip(),
-            transforms.RandomRotation(10),
-            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
-            transforms.GaussianBlur(kernel_size=3),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        ])
+        if self.h_params["data_augumentation"]:
+            return transforms.Compose([
+                transforms.Resize(size),
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomVerticalFlip(),
+                transforms.RandomRotation(10),
+                transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+                transforms.GaussianBlur(kernel_size=3),
+                transforms.ToTensor()
+            ])
+        else:
+            return transforms.Compose([
+                transforms.Resize(size),
+                transforms.ToTensor()
+            ])
 
     def get_test_transform(self):
         size = (self.image_size, self.image_size)
         return transforms.Compose([
             transforms.Resize(size),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            transforms.ToTensor()
         ])
 
     def stratified_split(self, dataset, ratio):
@@ -46,18 +51,18 @@ class DataPreparer:
     def get_datasets(self):
         train_transform = self.get_train_transform()
         test_transform = self.get_test_transform()
-        full_train = datasets.ImageFolder(self.train_dir, transform=train_transform)
+        full_train = ImageFolder(self.train_dir, transform=train_transform)
         train_set, val_set = self.stratified_split(full_train, 0.8)
-        test_set = datasets.ImageFolder(self.val_dir, transform=test_transform)
+        test_set = ImageFolder(self.val_dir, transform=test_transform)
         return train_set, val_set, test_set
 
     def get_loaders(self):
         train_set, val_set, test_set = self.get_datasets()
         batch = self.h_params["batch_size"]
         return {
-            "train_loader": DataLoader(train_set, batch_size=batch, shuffle=True, num_workers=self.h_params["num_workers"]),
-            "val_loader": DataLoader(val_set, batch_size=batch, shuffle=False, num_workers=self.h_params["num_workers"]),
-            "test_loader": DataLoader(test_set, batch_size=batch, shuffle=False, num_workers=self.h_params["num_workers"]),
+            "train_loader": DataLoader(train_set, batch_size=batch, shuffle=True),
+            "val_loader": DataLoader(val_set, batch_size=batch, shuffle=True),
+            "test_loader": DataLoader(test_set, batch_size=batch, shuffle=True),
             "train_len": len(train_set),
             "val_len": len(val_set),
             "test_len": len(test_set)
