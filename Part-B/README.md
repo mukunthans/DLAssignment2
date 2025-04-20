@@ -42,7 +42,11 @@ This project provides an image classification pipeline for the iNaturalist 12K d
 - numpy
 - wandb
 
+## W&B Report
+
+You can view the full experiment logs, metrics, and visualizations here:  
+👉 [DA6401 Assignment 2 - W&B Report](https://wandb.ai/cs24m026-iit-madras-foundation/DL%20Assignment%202/reports/DA6401-Assignment-2--VmlldzoxMjM3NjA0MA?accessToken=a6nr8f6ozmf9v61o8564ktk1ivv0pughb9onllrnndrc6fenonhsyjrp2dq4z5hn)
+
 ## License
 
 This project is intended for educational and research purposes.
-
